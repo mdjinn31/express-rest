@@ -1,4 +1,7 @@
 const { response, request } = require('express');
+const bcrypt = require('bcryptjs');
+const { validationResult } = require('express-validator');
+const User = require('../models/user');
 
 const getUser = (req = request, res = response) => {
     const query = req.query;
@@ -33,15 +36,44 @@ const putUser = (req = request,res = response) => {
     }
 }
 
-const postUser = (req = request,res = response) => {
-    const body = req.body;
-    const {nombre, edad} = req.body
-    console.log(body);
+const postUser = async(req = request,res = response) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) return res.status(400).json({errors});
+
+    const { 
+        name = 'no name', 
+        email = 'no email', 
+        password = 'no password',
+        role = 'READ_ONLY_ROLE', 
+        img = 'no img', 
+        state = true, 
+        google = false} = req.body;
+    
+    const user = new User({name, email, password, role, img, state, google});
+
+    //check if email exsite
+    const exist = await User.findOne({email});
+    if((user.email === 'no email')||(exist)){
+        return res.status(400).json({msg: 'email is reqiure and must be uniquie'});
+    }
+    //check if name exsite
+    if(user.name === 'no name'){
+        return res.status(400).json({msg: 'name is reqiure '});
+    }
+
+    //encript password
+    const salt = bcrypt.genSaltSync();
+    user.password = bcrypt.hashSync( password, salt);
+
+    //save in DB
+    await user.save();
+
+
+    console.log(user);
+
     res.json({
         msg: 'Que dice la raza en POST - controler',
-        nombre,
-        edad,
-        body
+        user
     });
 }
 
@@ -58,7 +90,6 @@ const deleteUser = (req = request,res = response) => {
         msg: 'Que dice la raza en DELETE - controler'
     });
 }
-
 
 module.exports = {
     getUser,

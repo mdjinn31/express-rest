@@ -40,9 +40,7 @@ class Server {
     }
 
     routes(){
-        
         this.app.use(this.paths[0],require('../routes/user'));
-
     }
 
     listen() {
