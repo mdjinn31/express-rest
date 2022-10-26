@@ -2,7 +2,7 @@ const { response, request } = require('express');
 
 const getUser = (req = request, res = response) => {
     const query = req.query;
-    const {q, name, apikey} = req.query;
+    const {q, name = 'No name', apikey, page = 1, limit = 20} = req.query;
     console.log(query);
     res.json({
         msg: 'Que dice la raza en GET - Controlador',
