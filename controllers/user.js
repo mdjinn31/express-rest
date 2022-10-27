@@ -2,6 +2,8 @@ const { response, request } = require('express');
 const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
+const { hashPassword } = require('../herlpers/general');
+const user = require('../models/user');
 
 const getUser = (req = request, res = response) => {
     const query = req.query;
@@ -16,11 +18,29 @@ const getUser = (req = request, res = response) => {
     });
 }
 
-const putUser = (req = request,res = response) => {
-    console.log("************************");
-    //console.log(req);
-    const {id} = req.params;
-    console.log(id);
+const putUser = async(req = request,res = response) => {
+
+    const { id } = req.params;
+    const { _id, email, password, google, ...rest} = req.body;
+
+    //validate body data with data in colections
+    if(password){
+        rest.password = hashPassword(password);
+    }
+
+    const user = await User.findByIdAndUpdate(id, rest);
+
+    console.log("*****Updating User*****");
+    console.log(user);
+    res.json({
+        msg: ' PUT - users',
+        id,
+        rest,
+        user
+    });
+
+
+    /*
     if(id){
         console.log("enter id");
         res.json({
@@ -34,45 +54,29 @@ const putUser = (req = request,res = response) => {
             id
         });
     }
+    */
 }
 
 const postUser = async(req = request,res = response) => {
    
     const { 
-        name = 'no name', 
-        email = 'no email', 
-        password = 'no password',
-        role = 'READ_ONLY_ROLE', 
+        name, 
+        email, 
+        password,
+        role, 
         img = 'no img', 
         state = true, 
-        google = false} = req.body;
+        google = false } = req.body;
     
     const user = new User({name, email, password, role, img, state, google});
 
-    //check if email exsite
-    const exist = await User.findOne({email});
-    if((user.email === 'no email')||(exist)){
-        return res.status(400).json({msg: 'email is reqiure and must be uniquie'});
-    }
-    //check if name exsite
-    if(user.name === 'no name'){
-        return res.status(400).json({msg: 'name is reqiure '});
-    }
-
     //encript password
-    const salt = bcrypt.genSaltSync();
-    user.password = bcrypt.hashSync( password, salt);
+    user.password = hashPassword(password);
 
     //save in DB
     await user.save();
 
-
-    console.log(user);
-
-    res.json({
-        msg: 'Que dice la raza en POST - controler',
-        user
-    });
+    res.json({user});
 }
 
 const patchUser = (req = request,res = response) => {

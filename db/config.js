@@ -10,7 +10,7 @@ const options = {
 const dbConnection = async() => {
     try {
         await mongoose.connect( process.env.MONGODB_ATLAS, options );
-        console.log('Data Base is online <MONGO ATLAS>', options);
+        console.log('Data Base is online <MONGO ATLAS>');
     } catch (error) {
         console.log(error);
         throw new Error('Error in DB connection init in connection');

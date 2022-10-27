@@ -6,10 +6,8 @@ const validateFields = (req = request, res = response, next) => {
     if(!errors.isEmpty()) {
         return res.status(400).json({errors});
     }
-
     next();
 }
-
 
 module.exports = {
     validateFields

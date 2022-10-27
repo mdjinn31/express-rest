@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { check } = require('express-validator');
 
 const {validateFields} = require('../middlewares/validate-fields');
-const Role = require('../models/role');
+const {validateRole, validEmail, validateId} = require('../herlpers/db-validations');
 
 const { 
         getUser, 
@@ -14,21 +14,26 @@ const {
 const router = Router();
 
 
-
 router.get('/', getUser);
 
-router.put('/:id?', putUser);
+router.put('/:id?',
+            [
+                check('id', `'It's not a valid Mongo ID`).isMongoId(),
+                check('id').custom(validateId),
+                check('email', "Email must be valid email").isEmail(),
+                check('email').custom(validEmail),
+                check('role').custom(validateRole),
+                validateFields,
+            ],
+            putUser);
 
-router.post('/', [
+router.post('/', 
+            [
                 check('name', "Name must be included").not().isEmpty(),
                 check('password', "Password must be 8 chars long").isLength({min: 8}),
                 check('email', "Email must be valid email").isEmail(),
-                check('role').custom( async(role = '') => {
-                    const roleExists = await Role.findOne({role});
-                    if(!roleExists){
-                        throw new Error(`The rol: ${role} is not allows, please add role in DB`);
-                    }
-                }),
+                check('email').custom(validEmail),
+                check('role').custom(validateRole),
                 validateFields,
             ],            
             postUser);
