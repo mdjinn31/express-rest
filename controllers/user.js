@@ -1,67 +1,30 @@
 const { response, request } = require('express');
-const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 const { hashPassword } = require('../herlpers/general');
-const user = require('../models/user');
 
 const getUser = async(req = request, res = response) => {
-    const query = req.query;
-    const { page = 1, limit = 10 } = req.query;
-    const usersCount = await User.count();
-    const result = await User
-                            .find()
-                            .limit(limit* 1)
-                            .skip((page - 1) * limit)
-                            .exec();
 
+    const query = {state: true};
+    const { page = 1, limit = 10 } = req.query;
+    const [count, result] = await Promise.all([
+                        User.countDocuments(query),
+                        User
+                            .find(query)
+                            .limit(Number(limit)* 1)
+                            .skip((Number(page) - 1) * Number(limit))
+    ]);
 
     res.json({
         result,
         pagination: {
-            usersCount,
-            totalPages: Math.ceil(usersCount / limit),
+            count,
+            totalPages: Math.ceil(count / limit),
             currentPage: parseInt(page)
         }
     });
 }
 
-const putUser = async(req = request,res = response) => {
-
-    const { id } = req.params;
-    const { _id, password, google, ...rest} = req.body;
-
-    //validate body data with data in colections
-    if(password){
-        rest.password = hashPassword(password);
-    }
-
-    const user = await User.findByIdAndUpdate(id, rest);
-
-    res.json({
-        msg: ' PUT - users',
-        id,
-        rest,
-        user
-    });
-
-
-    /*
-    if(id){
-        console.log("enter id");
-        res.json({
-            msg: 'Que dice la raza en PUT - controler',
-            id
-        });
-    } else {
-        console.log("enter else");
-        res.status(400).json({
-            msg: 'Que dice la raza en PUT - controler',
-            id
-        });
-    }
-    */
-}
 
 const postUser = async(req = request,res = response) => {
    
@@ -85,6 +48,35 @@ const postUser = async(req = request,res = response) => {
     res.json({user});
 }
 
+const putUser = async(req = request,res = response) => {
+
+    const { id } = req.params;
+    const { _id, password, google, ...rest} = req.body;
+
+    //validate body data with data in colections
+    if(password){
+        rest.password = hashPassword(password);
+    }
+
+    const user = await User.findByIdAndUpdate(id, rest);
+
+    res.json({
+        user
+    });
+
+}
+
+const deleteUser = async(req = request,res = response) => {
+    
+    const { id } = req.params;
+    const user = await User.findByIdAndUpdate(id, {state: false});
+    
+    res.json({
+        msg: 'User state was change sucesfully',
+        user
+    });
+}
+
 const patchUser = (req = request,res = response) => {
    // console.log(req);
     res.json({
@@ -92,12 +84,6 @@ const patchUser = (req = request,res = response) => {
     });
 }
 
-const deleteUser = (req = request,res = response) => {
-    //console.log(req);
-    res.json({
-        msg: 'Que dice la raza en DELETE - controler'
-    });
-}
 
 module.exports = {
     getUser,

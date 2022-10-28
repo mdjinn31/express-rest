@@ -40,7 +40,13 @@ router.post('/',
 
 router.patch('/', patchUser);
 
-router.delete('/', deleteUser);
+router.delete('/:id?', 
+               [
+                check('id', `'It's not a valid Mongo ID`).isMongoId(),
+                check('id').custom(validateId),
+                validateFields
+               ],
+               deleteUser);
 
 router.get('*', (req,res) => res.sendStatus(404));
 
