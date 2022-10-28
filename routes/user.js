@@ -20,9 +20,9 @@ router.put('/:id?',
             [
                 check('id', `'It's not a valid Mongo ID`).isMongoId(),
                 check('id').custom(validateId),
-                check('email', "Email must be valid email").isEmail(),
-                check('email').custom(validEmail),
-                check('role').custom(validateRole),
+                check('password', "Password must be 8 chars long").optional().isLength({min: 8}),
+                check('email', "Email must be valid email").optional().isEmail().custom(validEmail),
+                check('role').optional().custom(validateRole),
                 validateFields,
             ],
             putUser);

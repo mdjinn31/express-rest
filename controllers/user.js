@@ -5,23 +5,31 @@ const User = require('../models/user');
 const { hashPassword } = require('../herlpers/general');
 const user = require('../models/user');
 
-const getUser = (req = request, res = response) => {
+const getUser = async(req = request, res = response) => {
     const query = req.query;
-    const {q, name = 'No name', apikey, page = 1, limit = 20} = req.query;
-    console.log(query);
+    const { page = 1, limit = 10 } = req.query;
+    const usersCount = await User.count();
+    const result = await User
+                            .find()
+                            .limit(limit* 1)
+                            .skip((page - 1) * limit)
+                            .exec();
+
+
     res.json({
-        msg: 'Que dice la raza en GET - Controlador',
-        query,
-        q,
-        name,
-        apikey
+        result,
+        pagination: {
+            usersCount,
+            totalPages: Math.ceil(usersCount / limit),
+            currentPage: parseInt(page)
+        }
     });
 }
 
 const putUser = async(req = request,res = response) => {
 
     const { id } = req.params;
-    const { _id, email, password, google, ...rest} = req.body;
+    const { _id, password, google, ...rest} = req.body;
 
     //validate body data with data in colections
     if(password){
@@ -30,8 +38,6 @@ const putUser = async(req = request,res = response) => {
 
     const user = await User.findByIdAndUpdate(id, rest);
 
-    console.log("*****Updating User*****");
-    console.log(user);
     res.json({
         msg: ' PUT - users',
         id,
