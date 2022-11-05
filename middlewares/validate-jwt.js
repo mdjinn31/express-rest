@@ -18,11 +18,9 @@ const validateJWT = async (req = request, res = response, next) => {
     if(!token) return res.status(401).json({msg: msg.error.no});
     try {
         //const payload = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
-        //console.log(payload);
         //if(!User.findById(payload.uid)) return res.status(401).json({msg: msg.error.user});
         const {uid} = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
         req.authUser = await User.findOne({_id: uid});
-        //console.log(authUser);
         next();        
     } catch (error) {
         console.log(error);    
