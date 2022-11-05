@@ -15,6 +15,13 @@ const validEmail = async(email = '') => {
     }
 }
 
+const userExists = async(email = '') => {
+    const emailExist = await User.findOne({email});
+    if(!emailExist){
+        throw new Error(`The email: ${email} is not register to a user, please use a register email`);
+    }
+}
+
 const validateId = async(id = '') => {
     const idExists = await User.findById(id);
     if(!idExists){
@@ -25,5 +32,6 @@ const validateId = async(id = '') => {
 module.exports = {
     validateRole,
     validEmail,
-    validateId
+    validateId,
+    userExists
 }
