@@ -6,7 +6,9 @@ const msg = {
     error:{
         no: "There is no Token in the request",
         invalid: "The Token is invalid",
-        user: "The user is not a valid user id"
+        user: "The user is not enable, the user has been deleted",
+        no_admin: "The user has no permitions for this action",
+        no_auth_user: "The user is no authnticated user"
     },
     ok:"The token is valid"
 }
@@ -17,12 +19,10 @@ const validateJWT = async (req = request, res = response, next) => {
     console.log(token);
     if(!token) return res.status(401).json({msg: msg.error.no});
     try {
-        //const payload = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
-        //console.log(payload);
-        //if(!User.findById(payload.uid)) return res.status(401).json({msg: msg.error.user});
         const {uid} = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
-        req.authUser = await User.findOne({_id: uid});
-        //console.log(authUser);
+        const authUser = await User.findOne({_id: uid, state: true});
+        if(!authUser) return res.status(401).json({msg: msg.error.user});
+        req.authUser = authUser;
         next();        
     } catch (error) {
         console.log(error);    
