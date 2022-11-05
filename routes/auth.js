@@ -5,7 +5,6 @@ const { login } = require('../controllers/auth');
 const {validateFields} = require('../middlewares/validate-fields');
 const {userExists} = require('../herlpers/db-validations');
 
-
 const router = Router();
 
 router.post('/login',

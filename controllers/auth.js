@@ -1,6 +1,7 @@
 const { response } = require("express");
 const bcryptjs = require('bcryptjs');
 const User = require('../models/user');
+const {getJWT} = require('../herlpers/generate-token');
 
 const msgs = {
     error: {
@@ -30,10 +31,12 @@ const login = async(req, res = response) => {
         if(!(bcryptjs.compareSync(password, user.password))) return res.status(400).json({msg: msgs.error.password});
 
         // generate JWT
-
+        const token = await getJWT(user.id);
 
         res.json({
-            msg: "User logged in"
+            msg: "User logged in",
+            user,
+            token
         });
 
     } catch (error) {

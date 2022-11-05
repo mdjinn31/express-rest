@@ -68,12 +68,16 @@ const putUser = async(req = request,res = response) => {
 
 const deleteUser = async(req = request,res = response) => {
     
+    const authUser = req.authUser;    
+    if(authUser.role != "ADMIN_ROLE") return res.status(401).json({msg: "The user has no permitions for this action"});
+
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, {state: false});
-    
+
     res.json({
         msg: 'User state was change sucesfully',
-        user
+        user,
+        authUser
     });
 }
 
