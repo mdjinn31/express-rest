@@ -36,6 +36,9 @@ const postUser = async(req = request,res = response) => {
         img = 'no img', 
         state = true, 
         google = false } = req.body;
+
+    const authUser = req.authUser;    
+    if(authUser.role != "ADMIN_ROLE") return res.status(401).json({msg: "The user has no permitions for this action"});
     
     const user = new User({name, email, password, role, img, state, google});
 

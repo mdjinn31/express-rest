@@ -30,6 +30,7 @@ router.put('/:id?',
 
 router.post('/', 
             [
+                validateJWT,
                 check('name', "Name must be included").not().isEmpty(),
                 check('password', "Password must be 8 chars long").isLength({min: 8}),
                 check('email', "Email must be valid email").isEmail(),
