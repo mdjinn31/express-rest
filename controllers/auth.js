@@ -1,7 +1,9 @@
-const { response } = require("express");
+const { response, request } = require("express");
 const bcryptjs = require('bcryptjs');
+
 const User = require('../models/user');
 const {getJWT} = require('../herlpers/generate-token');
+const { googleVerify } = require("../herlpers/google-verify");
 
 const msgs = {
     error: {
@@ -48,6 +50,39 @@ const login = async(req, res = response) => {
 
 }
 
+const googleSingIn = async(req = request, res = response) => {
+
+    const { id_token } = req.body;
+    try {
+        const googleUser = await googleVerify(id_token);
+
+        let user = await User.findOne({email: googleUser.email});
+
+        if(!user){
+            user = new User(googleUser);
+            await user.save();
+        }
+
+        if(!user.state) return res.status(401).json({msg: msgs.error.state});
+
+        const token = await getJWT(user.id);
+
+        res.json({
+            msg: "User is Sing in from google",
+            id_token,
+            token,
+            user
+        });        
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            msg: msgs.succes.ok
+        });  
+    }
+}
+
 module.exports = {
-    login
+    login,
+    googleSingIn
 }

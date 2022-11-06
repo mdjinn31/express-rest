@@ -4,11 +4,54 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REST Server - Acceso Denegado</title>
+    <title>REST Server - Google Sing In</title>
 </head>
 <body>
     <section>
-        <h1 class="error">Acceso Denegado</h1>
+        <h1 class="error">Google Sing In</h1>
     </section>
+      <div id="g_id_onload"
+         data-client_id="34786363221-4hcpdu43stnb88ce0qqaf4det7vjope5.apps.googleusercontent.com"
+         data-auto_prompt="false"
+         data-callback="handleCredentialResponse">
+      </div>
+      <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-shape="rectangular"
+         data-logo_alignment="left">
+      </div>    
+      <div class="google_signout">
+        <button id="signout_google"> Signout</button>
+      </div>
+      <script src="https://accounts.google.com/gsi/client" async defer></script>
+      <script>
+            function handleCredentialResponse(response) {
+            const body = {id_token:response.credential}
+            fetch('http://localhost:80/api/auth/google',{
+                        method: 'POST',
+                        headers: {
+                            'Content-Type':'application/json'
+                        },
+                        body: JSON.stringify(body)
+                    })
+                    .then( res => res.json())
+                    .then( res => {
+                        localStorage.setItem('email_google',res.user.email);
+                    })
+                    .catch(console.warn);
+            }
+
+            const button = document.getElementById('signout_google');
+            button.onclick = async() => {
+                google.accounts.id.revoke(localStorage.getItem('email_google'), done => {
+                    localStorage.clear();
+                    location.reload();
+                });
+                google.accounts.id.disableAutoSelect();
+            }
+      </script>
 </body>
 </html>

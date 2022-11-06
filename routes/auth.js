@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { login } = require('../controllers/auth');
+const { login, googleSingIn } = require('../controllers/auth');
 
 const {validateFields} = require('../middlewares/validate-fields');
 const {userExists} = require('../herlpers/db-validations');
@@ -14,5 +14,12 @@ router.post('/login',
                 validateFields
             ]
             ,login);
+
+router.post('/google',
+            [
+                check('id_token', 'The ID_TOKEN is nesesary to autenticate').not().isEmpty(),
+                validateFields
+            ]
+            ,googleSingIn);
 
 module.exports = router;    
