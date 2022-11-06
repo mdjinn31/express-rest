@@ -39,6 +39,7 @@
                     })
                     .then( res => res.json())
                     .then( res => {
+                        console.log(res);
                         localStorage.setItem('email_google',res.user.email);
                     })
                     .catch(console.warn);
@@ -46,6 +47,7 @@
 
             const button = document.getElementById('signout_google');
             button.onclick = async() => {
+                console.log(google.accounts);
                 google.accounts.id.revoke(localStorage.getItem('email_google'), done => {
                     localStorage.clear();
                     location.reload();
