@@ -2,7 +2,7 @@ const { response, request } = require("express");
 const bcryptjs = require('bcryptjs');
 
 const User = require('../models/user');
-const {getJWT} = require('../herlpers/generate-token');
+const { getJWT } = require('../herlpers/generate-token');
 const { googleVerify } = require("../herlpers/google-verify");
 
 const msgs = {

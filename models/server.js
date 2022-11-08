@@ -10,7 +10,8 @@ class Server {
         this.paths = [
             '/api/auth',
             '/api/user',
-            '/api/sessions'
+            '/api/sessions',
+            '/api/categories'
         ];
 
         //conecto to db
@@ -42,6 +43,7 @@ class Server {
     routes(){
         this.app.use(this.paths[0],require('../routes/auth'));
         this.app.use(this.paths[1],require('../routes/user'));
+        this.app.use(this.paths[3],require('../routes/categories'));
     }
 
     listen() {

@@ -4,8 +4,8 @@ const { Schema, model } = require('mongoose');
 const RoleSchema = Schema({
     role: {
         type: String,
-        require: [true, 'Must add a role name']
+        required: [true, 'Must add a role name']
     }
 });
 
-module.exports = model('role', RoleSchema);
+module.exports = model('Role', RoleSchema);
