@@ -7,7 +7,7 @@ const msgs = {
         no: " Not Found",
         get: "There was an error geting the product listing ",
         post: "There was an error creating the product: ",
-        deleted: "The product has been deleted",
+        deleted: "There was an error deleting the product",
         update: "There was an error updateing the product: ",
         exists: "The product already exists",
         no_cat: "The category does not exists"
@@ -16,6 +16,7 @@ const msgs = {
         ok: "Enter in products",
         post: "There was created Ok - Product: ",
         put: "There was updated Ok - Product: ",
+        deleted: "The product has been deleted",
         check: "It's all good man!"
     }
 }
@@ -102,7 +103,6 @@ const getProduct = async(req = request, res = response) => {
     }
 }
 
-
 //GET controller to list all products by category
 const getProductsByCategory = async(req = request, res = response) => {
 
@@ -139,9 +139,52 @@ const getProductsByCategory = async(req = request, res = response) => {
     }
 }
 
+//PUT controller to update a product by ID
+const updateProduct = async(req = request, res = response) => {
+
+    const { id } = req.params;
+    const {name, state = true} = req.body;
+
+    //const data = {name: name.toUpperCase(), state, user: req.authUser._id};
+
+    try {
+        const product = await Product.findByIdAndUpdate(id,data);
+        res.json({
+            msg:`${msgs.ok.put} ${name.toUpperCase()}`,
+            product
+        });
+    } catch (error) {
+        console.log(`${msgs.error.update} ${name}`);
+        res.status(400).json({msg: `${msgs.error.update} ${name} - Error: ${error}`});                
+    }
+
+}
+
+//DELET controller to delete a product by ID
+const deleteProduct = async(req = request, res = response) => {
+
+    const user = req.authUser;
+    const { id } = req.params;
+
+    try {
+        const product = await Product.findByIdAndUpdate(id, {state: false, user});
+
+        res.json({
+            msg: msgs.ok.deleted,
+            product,
+            user
+        });
+    } catch (error) {
+        console.log(`${msgs.error.deleted} - Error ${ error}`);
+        res.status(400).json({msg: `${msgs.error.deleted} - Error ${error}`});        
+    }
+}
+
 module.exports = {
     createProduct,
     getProducts,
     getProduct,
-    getProductsByCategory
+    getProductsByCategory,
+    deleteProduct,
+    updateProduct
 }

@@ -11,7 +11,7 @@ const msg = {
 
 const validateCategoryName = async (req = request, res = response, next) => {
 
-    const name = req.params.name.toLocaleUpperCase();
+    const name = req.params.name.toUpperCase();
     try {
         const catId = await Category.findOne({name});
         if(!catId) return res.status(401).json({msg: msg.error.no});    

@@ -1,9 +1,9 @@
 
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { createProduct, getProducts, getProduct, getProductsByCategory } = require('../controllers/product');
+const { createProduct, getProducts, getProduct, getProductsByCategory, deleteProduct, updateProduct } = require('../controllers/product');
 const { validateProductID } = require('../herlpers/db-validations');
-const { validateJWT, validateFields, validateCategoryName } = require('../middlewares');
+const { validateJWT, validateFields, validateCategoryName, checkIfAdmin, validateProduct } = require('../middlewares');
 
 
 
@@ -60,5 +60,27 @@ const msg = {
                getProductsByCategory);
 /******************************/       
 
+// Put - update product - private
+    router.put('/:id',
+                [
+                    validateJWT,
+                    check('id',"It's not a valid Mongo ID").isMongoId(),
+                    validateProduct,
+                    validateFields  
+                ],
+                updateProduct)
+/******************************/ 
 
-module.exports = router;            
+// Delete - delete product - private - only Admin role
+    router.delete('/:id', 
+                  [
+                    validateJWT,
+                    checkIfAdmin,
+                    check('id',"It's not a valid Mongo ID").isMongoId(),
+                    validateFields
+                  ],
+                  deleteProduct); 
+/******************************/ 
+
+
+module.exports = router;                
