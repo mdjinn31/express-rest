@@ -31,13 +31,13 @@ const searchUser = async( term = '', res = response) => {
 const searchCategories = async( term = '', res = response) => {
         const isMongoID = ObjectId.isValid(term);
         if(isMongoID){
-            const result = await Category.findById(term);
+            const result = await Category.findById(term).populate('user','name');
             return res.json({
                 results: (result) ? [result] : []
             });
         }else{
             const regexp = new RegExp( term, 'i');
-            const result = await Category.find({name: regexp, state: true});
+            const result = await Category.find({name: regexp, state: true}).populate('user','name');
             return res.json({
                 results: (result) ? result : []
             });
@@ -47,7 +47,9 @@ const searchCategories = async( term = '', res = response) => {
 const searchProducts = async( term = '', res = response) => {
     const isMongoID = ObjectId.isValid(term);
     if(isMongoID){
-        const result = await Product.findById(term);
+        const result = await Product.findById(term)
+                                    .populate('category','name')
+                                    .populate('user','name');
         return res.json({
             results: (result) ? [result] : []
         });
@@ -56,7 +58,9 @@ const searchProducts = async( term = '', res = response) => {
         const result = await Product.find({
             $or:[{name: regexp},{description: regexp}],
             $and:[{state: true}]
-        });
+        })
+                .populate('category','name')
+                .populate('user','name');
         return res.json({
             results: (result) ? result : []
         });
