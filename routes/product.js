@@ -3,7 +3,7 @@ const { Router } = require('express');
 const { check } = require('express-validator');
 const { createProduct, getProducts, getProduct, getProductsByCategory, deleteProduct, updateProduct } = require('../controllers/product');
 const { validateProductID } = require('../herlpers/db-validations');
-const { validateJWT, validateFields, validateCategoryName, checkIfAdmin, validateProduct } = require('../middlewares');
+const { validateJWT, validateFields, validateCategoryName, checkIfAdmin, validateProduct, validateProductCategory } = require('../middlewares');
 
 
 
@@ -65,6 +65,7 @@ const msg = {
                 [
                     validateJWT,
                     check('id',"It's not a valid Mongo ID").isMongoId(),
+                    validateProductCategory,
                     validateProduct,
                     validateFields  
                 ],

@@ -47,7 +47,6 @@ const validateCategoryID = async(id = '') => {
 }
 
 const ifCategoryExists = async(name = '') => {
-    //console.log(id);
     const exists = await Category.findOne({name:name.toUpperCase()});
     if(exists) throw new Error(`The Category: ${name} exists, use a diferent Category name`);
 }
@@ -65,6 +64,17 @@ const validateProductID = async(id = '') => {
 
 /****************************** */
 
+/****************************** */
+// Search validations
+/****************************** */
+const isValidCategory = async(name = '') => {
+    console.log(name);
+    const exists = await Category.findOne({name:name.toUpperCase()});
+    if(!exists) throw new Error(`The Category: ${name} doesn't exists, use a existing Category name`);
+}
+
+/****************************** */
+
 module.exports = {
     validateRole,
     validEmail,
@@ -73,4 +83,5 @@ module.exports = {
     validateCategoryID,
     ifCategoryExists,
     validateProductID,
+    isValidCategory
 }

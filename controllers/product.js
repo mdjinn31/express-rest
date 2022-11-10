@@ -143,19 +143,18 @@ const getProductsByCategory = async(req = request, res = response) => {
 const updateProduct = async(req = request, res = response) => {
 
     const { id } = req.params;
-    const {name, state = true} = req.body;
-
-    //const data = {name: name.toUpperCase(), state, user: req.authUser._id};
-
+    const { _id, state, user, category, ...rest} = req.body;
+    const data = {user: req.authUser._id, category:req.categoryId , ...rest};
+    
     try {
         const product = await Product.findByIdAndUpdate(id,data);
         res.json({
-            msg:`${msgs.ok.put} ${name.toUpperCase()}`,
+            msg:`${msgs.ok.put} ${product.name}`,
             product
         });
     } catch (error) {
-        console.log(`${msgs.error.update} ${name}`);
-        res.status(400).json({msg: `${msgs.error.update} ${name} - Error: ${error}`});                
+        console.log(`${msgs.error.update} ${error}`);
+        res.status(400).json({msg: `${msgs.error.update} - Error: ${error}`});                
     }
 
 }

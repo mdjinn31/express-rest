@@ -1,3 +1,4 @@
+const e = require('express');
 const { request, response } = require('express');
 const { mongoose } = require('mongoose');
 const { Category, Product } = require('../models');
@@ -17,16 +18,10 @@ const validateProduct = async (req = request, res = response, next) => {
         const catId = await Category.findOne({name: req.body.category.toUpperCase(), state: true});
         if(!catId) return res.status(401).json({msg: msg.error.no});    
 
-        const product = await Product.findOne({name: req.body.name, state: true, category: mongoose.Types.ObjectId(req.categoryId)});
-        if(catId) return res.status(401).json({msg: msg.error.exists});
+        const product = await Product.findOne({name: req.body.name, state: true, category: mongoose.Types.ObjectId(catId._id)});
+        if(product) return res.status(401).json({msg: msg.error.exists});
 
-        const { _id, state, user, ...rest} = req.body;
-        const data = {user: req.authUser._id, ...rest};
-
-        Product.findByIdAndUpdate(req.params.id,data);
-
-        
-        //req.categoryId = catId._id; 
+        req.categoryId = catId._id; 
 
         next();        
     } catch (error) {
@@ -35,6 +30,22 @@ const validateProduct = async (req = request, res = response, next) => {
     }
 }
 
+const validateProductCategory = async(req = request, res = response, next) => {
+
+    if(req.body.category){
+        const catId = await Category.findOne({name: req.body.category.toUpperCase(), state: true});
+        if(!catId) return res.status(401).json({msg: msg.error.no});   
+    }else{
+        const catId = await Product.findById(req.params.id).populate('category', 'name');
+        if(catId){
+            const temp = catId.category;
+            req.body.category = temp.name;  
+        } 
+    }
+    next();
+}
+
 module.exports = {
-    validateProduct
+    validateProduct,
+    validateProductCategory
 }
